@@ -3,7 +3,8 @@ from gradio_client import Client, handle_file
 import os
 
 def analyze_data(file_input, additional_notes):
-    client = Client("m-ric/agent-data-analyst")
+    api_key = st.secrets["API_KEY"]
+    client = Client("m-ric/agent-data-analyst", api_key=api_key)
     result = client.predict(
         file_input=file_input,
         additional_notes=additional_notes,
