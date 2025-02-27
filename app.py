@@ -1,12 +1,11 @@
 import streamlit as st
-from gradio_client import Client, handle_file
+from gradio_client import Client
 import os
 
 def analyze_data(file_input, additional_notes):
     api_key = st.secrets["API_KEY"]
     os.environ["GRADIO_API_KEY"] = api_key  # Set API key as an environment variable
-
-    client = Client("m-ric/agent-data-analyst")  # No need to pass api_key directly
+    client = Client("m-ric/agent-data-analyst")  # No need to pass api_key here
     result = client.predict(
         file_input=file_input,
         additional_notes=additional_notes,
@@ -14,24 +13,23 @@ def analyze_data(file_input, additional_notes):
     )
     return result
 
-st.title("Data Analyst App")
-st.write("Upload a file for analysis")
+st.title("Data Analysis App")
 
-uploaded_file = st.file_uploader("Your file to analyze", type=["csv", "xlsx", "pdf", "txt"])
-notes = st.text_area("Additional notes to support the analysis", "Hello!!")
+uploaded_file = st.file_uploader("Upload a file", type=["csv", "xlsx", "txt"])
+notes = st.text_area("Additional Notes")
 
 if uploaded_file is not None:
-    file_path = os.path.join("temp", uploaded_file.name)
-    os.makedirs("temp", exist_ok=True)
+    file_path = "uploaded_file"  # You might want to generate a unique filename
     with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-    
-    st.write("File uploaded successfully!")
-    
+        f.write(uploaded_file.getvalue())
+
     if st.button("Analyze File"):
         with st.spinner("Analyzing..."):
-            result = analyze_data(file_path, notes)
-        st.success("Analysis Complete!")
-        st.write(result)
-    
-    os.remove(file_path)
+            try:
+                result = analyze_data(file_path, notes)
+                st.success("Analysis Complete!")
+                st.write(result)
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+            finally:
+                os.remove(file_path) #clean up the uploaded file.
