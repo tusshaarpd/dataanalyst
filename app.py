@@ -4,7 +4,9 @@ import os
 
 def analyze_data(file_input, additional_notes):
     api_key = st.secrets["API_KEY"]
-    client = Client("m-ric/agent-data-analyst", api_key=api_key)
+    os.environ["GRADIO_API_KEY"] = api_key  # Set API key as an environment variable
+
+    client = Client("m-ric/agent-data-analyst")  # No need to pass api_key directly
     result = client.predict(
         file_input=file_input,
         additional_notes=additional_notes,
